@@ -145,7 +145,7 @@ def find_client(cursor, first_name=None, last_name=None, email=None, number=None
     # print(data_in)
     # print(data_val)
 
-   # Формируем  запрос , который работает с данными не равными None :
+   
     # Формируем  запрос , который работает с данными , не равными None :
 
     # Общий вид запроса :
