@@ -145,7 +145,7 @@ def find_client(cursor, first_name=None, last_name=None, email=None, number=None
     # print(data_in)
     # print(data_val)
 
-   
+
     # Формируем  запрос , который работает с данными , не равными None :
 
     # Общий вид запроса :
@@ -168,11 +168,11 @@ def find_client(cursor, first_name=None, last_name=None, email=None, number=None
 
 with psycopg2.connect(database="client2", user="postgres", password="postgres") as conn:
     with conn.cursor() as cur:
-        #удаление таблиц
-        cur.execute("""
-               DROP TABLE phones;
-               DROP TABLE clients;
-               """)
+        # удаление таблиц - запустить после первого создания таблиц
+        # cur.execute("""
+        #        DROP TABLE phones;
+        #        DROP TABLE clients;
+        #        """)
 
         # 1) Вызываем функцию создания таблиц
         tables= creating_tables(cur)
