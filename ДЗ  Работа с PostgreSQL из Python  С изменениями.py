@@ -128,28 +128,29 @@ def find_client(cursor, first_name=None, last_name=None, email=None, number=None
 
     # Создадим возможность внесения изменений независимо друг от друга
 
-    data = []  # рабочий список входных параметров
-    data_out_0 = []  # Список выходных параметров
+    data = []  # рабочий список  параметров строки запроса
+    data_val_0 = []  # Список со значениями входных параметров параметров
 
     # Проходим  циклом по словарю data_in_dict и отфильтровываем данные = None
     for key, val in data_in_dict.items():
         if val != None:
             z = f'{key}=%s'
             data.append(z)
-            data_out_0.append(val)
+            data_val_0.append(val)
 
     data_in = " AND ".join(data)  # строка входных данных
-    data_out = tuple(data_out_0)  # кортеж выходных данных
+    data_val = tuple(data_val_0)  # кортеж значений входных данных
 
+    # Проверка
     # print(data_in)
-    # print(data_out)
+    # print(data_val)
 
    # Формируем  запрос , который работает с данными не равными None :
     cursor.execute(f"""
         SELECT cl.client_id FROM clients cl
         JOIN phones ph ON cl.client_id = ph.client_id
         WHERE {data_in} ;
-        """, data_out)
+        """, data_val)
 
     return cursor.fetchone()[0]
 
@@ -216,7 +217,7 @@ with psycopg2.connect(database="client2", user="postgres", password="postgres") 
         cur.execute(""" Select * From clients;""")
         print(cur.fetchall())
 
-        # Таблица phones
+        # Таблица phones ( для проверки правильности входных данных)
         cur.execute(""" Select * From phones;""")
         print(cur.fetchall())
 
