@@ -1,4 +1,5 @@
-# Домашнее задание к лекции «Работа с PostgreSQL из Python»
+# Домашнее задание к лекции «Работа с PostgreSQL из Python» с исправлениями
+
 # Создайте программу для управления клиентами на Python.
 #
 # Требуется хранить персональную информацию о клиентах:
@@ -22,10 +23,9 @@
 # 7)Функция, позволяющая найти клиента по его данным: имени, фамилии, email или телефону.
 
 
-
 import psycopg2
 
-# 1) Функция, создающая структуру БД (таблицы).
+# 1)Функция, создающая структуру БД (таблицы).
 
 def creating_tables (cursor):
 
@@ -60,7 +60,7 @@ def add_client(cursor, first_name, last_name, email):
 
 
 # 3) Функция, позволяющая добавить телефон для существующего клиента
-def add_phone(cursor, client_id, number = None ):
+def add_phone(cursor, client_id, number=None):
     cursor.execute("""
                 INSERT INTO phones (client_id, number)
                 VALUES (%s, %s );
@@ -120,49 +120,38 @@ def delete_client(cursor, client_id):
 
 def find_client(cursor, first_name=None, last_name=None, email=None, number=None):
     ''' Функция определяет id клиента
-    по одному из параметров - имени , фамилии , адресу электронной почты
-    либо по номеру его телефона
-     '''
+    по  параметрам клиента - имени , фамилии , адресу электронной почты ,
+    номеру его телефона . При этом возможны различные комбинации входных данных '''
 
-    # Проверка -  задан ли номер телефона ?
-    # Если задан , определяем id клиента по нему :
-    if number != None:
-        cursor.execute("""
-            SELECT client_id FROM phones
-            WHERE  number=%s ;
-            """, (number,))
+    # Сформируем словарь 'название входного элемента':'значение входного элемента'
+    data_in_dict = {'first_name': first_name, 'last_name': last_name, 'email': email, 'number': number}
 
-        return cursor.fetchone()[0]
+    # Создадим возможность внесения изменений независимо друг от друга
 
-    # В противном случае , работаем с параметрами из таблицы clients :
-    else:
-        # # Сформируем словарь со структурой : {'название входного параметра':'значение входного параметра'}
-        data_in_dict = {'first_name': first_name, 'last_name': last_name, 'email': email}
+    data = []  # рабочий список входных параметров
+    data_out_0 = []  # Список выходных параметров
 
-        # Создадим возможность делать запрос с отсечением  пустых параметров
+    # Проходим  циклом по словарю data_in_dict и отфильтровываем данные = None
+    for key, val in data_in_dict.items():
+        if val != None:
+            z = f'{key}=%s'
+            data.append(z)
+            data_out_0.append(val)
 
-        data = []  # рабочий список входных параметров
-        data_out_0 = []  # Список выходных параметров
-        for key, val in data_in_dict.items():
-            if val != None:
-                z = f'{key}=%s'
-                data.append(z)
-                data_out_0.append(val)
+    data_in = " AND ".join(data)  # строка входных данных
+    data_out = tuple(data_out_0)  # кортеж выходных данных
 
-        data_in = " AND ".join(data)  # строка входных данных
-        data_out = tuple(data_out_0)  # кортеж выходных данных
+    # print(data_in)
+    # print(data_out)
 
-        # Проверка :
-        # print(data_in)
-        # print(data_out)
+   # Формируем  запрос , который работает с данными не равными None :
+    cursor.execute(f"""
+        SELECT cl.client_id FROM clients cl
+        JOIN phones ph ON cl.client_id = ph.client_id
+        WHERE {data_in} ;
+        """, data_out)
 
-        # Запрос :
-        cursor.execute(f"""
-                   SELECT client_id FROM clients
-                   WHERE  {data_in} ;
-                   """, data_out)
-
-        return cursor.fetchone()[0]
+    return cursor.fetchone()[0]
 
 # Пароль для подключения - личный
 
@@ -206,18 +195,16 @@ with psycopg2.connect(database="client2", user="postgres", password="postgres") 
         # 4) Вызов функции, позволяющей изменить данные о клиенте.
 
         # new_client_1 = new_data(cur, 5, None, 'Zuza' , 'bos@python.com')
-
         # cur.execute(""" Select * From clients;""")
         # print(cur.fetchall())
 
         # 5) Вызов функции, позволяющей удалить телефон для существующего клиента.
-
         #   Удалим 2 номера телефона для клиента с id = 3 :
 
         # client_delete_phone_1 = delete_phone ( cur, 3 )
 
 
-        # 6) Вызов функции, позволяющей удалить существующего клиента.
+        # 6) Вызов функции, позволяющая удалить существующего клиента.
 
         # client_delete_1 = delete_client (cur,5)
 
@@ -225,7 +212,7 @@ with psycopg2.connect(database="client2", user="postgres", password="postgres") 
 
         # 7) Вызов функции, позволяющей найти клиента по его данным: имени, фамилии, email или телефону
 
-        # Таблица clients
+        # Таблица clients ( для проверки правильности входных данных)
         cur.execute(""" Select * From clients;""")
         print(cur.fetchall())
 
@@ -233,7 +220,7 @@ with psycopg2.connect(database="client2", user="postgres", password="postgres") 
         cur.execute(""" Select * From phones;""")
         print(cur.fetchall())
 
-        required_client = find_client(cur, 'Anton', None,'anton@python.com', None)
+        required_client = find_client(cur, 'Anton', None,None, 11122234)
         print(required_client)
 
 
