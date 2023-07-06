@@ -146,6 +146,16 @@ def find_client(cursor, first_name=None, last_name=None, email=None, number=None
     # print(data_val)
 
    # Формируем  запрос , который работает с данными не равными None :
+    # Формируем  запрос , который работает с данными , не равными None :
+
+    # Общий вид запроса :
+    # cursor.execute("""
+    #        SELECT cl.client_id FROM clients cl
+    #        JOIN phones ph ON cl.client_id = ph.client_id
+    #        WHERE first_name=%s AND last_name=%s AND email=%s AND number=%s ;
+    #        """, (first_name, last_name, email ,number ))
+
+    # Запрос с фильтрацией по None :
     cursor.execute(f"""
         SELECT cl.client_id FROM clients cl
         JOIN phones ph ON cl.client_id = ph.client_id
